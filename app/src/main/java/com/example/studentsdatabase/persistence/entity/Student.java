@@ -1,8 +1,14 @@
-package com.example.studentsdatabase;
+package com.example.studentsdatabase.persistence.entity;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
+@Entity
 public class Student {
-    private	int	id;
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    private int id;
     private String name;
     private String marks;
 
@@ -11,11 +17,7 @@ public class Student {
         this.marks = marks;
     }
 
-    public Student(int id, String name, String marks) {
-        this.id = id;
-        this.name = name;
-        this.marks = marks;
-    }
+
 
     public int getId() {
         return id;

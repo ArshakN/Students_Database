@@ -14,22 +14,21 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.studentsdatabase.R;
-import com.example.studentsdatabase.Student;
-import com.example.studentsdatabase.database.Database;
+import com.example.studentsdatabase.persistence.entity.Student;
+import com.example.studentsdatabase.ViewModel.StudentViewModel;
 
 import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
+    StudentViewModel studentViewModel;
     private Context context;
-    private ArrayList<Student> listStudents;
+    private ArrayList<Student> listStudents = new ArrayList<>();
 
-    private Database mDatabase;
 
-    public MyAdapter(Context context, ArrayList<Student> listStudents) {
+    public MyAdapter(Context context, StudentViewModel studentViewModel) {
         this.context = context;
-        this.listStudents = listStudents;
-        mDatabase = new Database(context);
+        this.studentViewModel = studentViewModel;
     }
 
 
@@ -37,6 +36,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_layout, parent, false);
         return new MyViewHolder(view);
+    }
+
+    public void setStudentList(ArrayList<Student> studentList) {
+        this.listStudents = studentList;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -56,18 +60,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.deleteStudent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDatabase.deleteStudent(student.getId());
-                update();
+                studentViewModel.deleteStudent(student);
             }
         });
     }
 
-
-    public void update()
-    {
-        listStudents=mDatabase.listStudents();
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {
@@ -75,14 +72,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
 
-    private void editTaskDialog(final Student student){
+    private void editTaskDialog(final Student student) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View subView = inflater.inflate(R.layout.add_contact_layout, null);
 
         final EditText nameField = subView.findViewById(R.id.enter_name);
-        final EditText contactField =subView.findViewById(R.id.enter_mark);
+        final EditText contactField = subView.findViewById(R.id.enter_mark);
 
-        if(student != null){
+        if (student != null) {
             nameField.setText(student.getName());
             contactField.setText(String.valueOf(student.getMarks()));
         }
@@ -98,12 +95,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 final String name = nameField.getText().toString();
                 final String ph_no = contactField.getText().toString();
 
-                if(TextUtils.isEmpty(name)){
+                if (TextUtils.isEmpty(name)) {
                     Toast.makeText(context, "Something went wrong. Check your input values", Toast.LENGTH_LONG).show();
-                }
-                else{
-                    mDatabase.updateStudents(new Student(student.getId(), name, ph_no));
-                    update();
+                } else {
+                    student.setName(name);
+                    student.setMarks(ph_no);
+                    studentViewModel.updateStudent(student);
+
                 }
             }
         });
